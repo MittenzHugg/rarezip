@@ -98,11 +98,21 @@ int fill_inbuf(eof_ok)
     /* Read as much as possible */
     insize = 0;
     errno = 0;
+#ifndef AS_LIBRARY
     do {
 	len = read(ifd, (char*)inbuf+insize, INBUFSIZ-insize);
         if (len == 0 || len == EOF) break;
 	insize += len;
     } while (insize < INBUFSIZ);
+#else
+    len = (INBUFSIZ <= in_file_remaining) ? INBUFSIZ : in_file_remaining;
+    if(len != 0){
+        memcpy(inbuf, in_file_buffer, len);
+        in_file_buffer += len;
+        in_file_remaining -= len;
+    }
+    insize += len;
+#endif
 
     if (insize == 0) {
 	if (eof_ok) return EOF;
@@ -122,15 +132,14 @@ void flush_outbuf()
     if (outcnt == 0) return;
 #ifndef AS_LIBRARY
     write_buf(ofd, (char *)outbuf, outcnt);
-    bytes_out += (ulg)outcnt;
-    outcnt = 0;
 #else
+
     memcpy(out_file_buffer, outbuf, outcnt);
     out_file_buffer += outcnt;
     out_file_remaining -= outcnt;
-    bytes_out += outcnt;
-    outcnt = 0;
 #endif
+    bytes_out += (ulg)outcnt;
+    outcnt = 0;
 }
 
 /* ===========================================================================
@@ -145,8 +154,10 @@ void flush_window()
     if (!test) {
 	write_buf(ofd, (char *)window, outcnt);
     }
+
     bytes_out += (ulg)outcnt;
     outcnt = 0;
+    
 }
 
 /* ===========================================================================
@@ -160,6 +171,9 @@ void write_buf(fd, buf, cnt)
 {
     unsigned  n;
 
+
+
+#ifndef AS_LIBRARY
     while ((n = write(fd, buf, cnt)) != cnt) {
 	if (n == (unsigned)(-1)) {
 	    write_error();
@@ -167,7 +181,14 @@ void write_buf(fd, buf, cnt)
 	cnt -= n;
 	buf = (voidp)((char*)buf+n);
     }
+#else
+    if(cnt > out_file_remaining) write_error();
+    memcpy(out_file_buffer, buf, cnt);
+    out_file_buffer += cnt;
+    out_file_remaining -= cnt;
+#endif
 }
+        
 
 /* ========================================================================
  * Put string s in lower case, return s.
@@ -366,8 +387,10 @@ void read_error()
 
 void write_error()
 {
-    fprintf(stderr, "\n%s: ", "bob");
+#ifndef AS_LIBRARY
+    fprintf(stderr, "\n%s: ", "gzip");
     perror(ofname);
+#endif
     abort_gzip();
 }
 

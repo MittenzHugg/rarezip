@@ -17,6 +17,7 @@
 static char rcsid[] = "$Id: unzip.c,v 0.13 1993/06/10 13:29:00 jloup Exp $";
 #endif
 
+#include "librarezip.h"
 #include "tailor.h"
 #include "gzip.h"
 #include "crypt.h"
@@ -96,7 +97,7 @@ int check_zipfile(in)
  *   the compressed data, from offsets inptr to insize-1 included.
  *   The magic header has already been checked. The output buffer is cleared.
  */
-int unzip(in, out)
+int _unzip(in, out)
     int in, out;   /* input and output file descriptors */
 {
     ulg orig_crc = 0;       /* original crc */
@@ -117,7 +118,7 @@ int unzip(in, out)
     /* Decompress */
     if (method == DEFLATED)  {
 
-	int res = inflate();
+	int res = _inflate();
 
 	if (res == 3) {
 	    error("out of memory");
@@ -196,4 +197,169 @@ int unzip(in, out)
     }
     ext_header = pkzip = 0; /* for next file */
     return OK;
+}
+
+size_t inflate(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap){
+	method = DEFLATED;
+
+	bufs_init(in_file, in_len, out_file, out_cap);
+    
+	updcrc(NULL, 0);           /* initialize crc */
+
+	int res = _inflate();
+
+	if (res == 3) {
+	    error("out of memory");
+	} else if (res != 0) {
+	    error("invalid compressed data--format violated");
+	}
+
+	flush_window();
+	ext_header = pkzip = 0; /* for next file */
+    return bytes_out;
+}
+
+size_t unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap)
+{
+    ulg orig_crc = 0;       /* original crc */
+    ulg orig_len = 0;       /* original uncompressed length */
+    int n;
+    uch buf[EXTHDR];        /* extended local header */
+	method = DEFLATED;
+
+	if (memcmp(in_file, GZIP_MAGIC, 2) != 0
+        && memcmp(in_file, OLD_GZIP_MAGIC, 2) != 0
+	){
+		error("\ngzip: not in gzip file format\n");
+	}
+	if(in_file[2] != DEFLATED){
+		error("only deflated zip files supported in this library");
+	}
+
+	bufs_init(in_file + 10, in_len - 10, out_file, out_cap);
+    
+	updcrc(NULL, 0);           /* initialize crc */
+
+
+
+    if (pkzip && !ext_header) {  /* crc and length at the end otherwise */
+	orig_crc = LG(inbuf + LOCCRC);
+	orig_len = LG(inbuf + LOCLEN);
+    }
+
+    /* Decompress */
+    if (method == DEFLATED)  {
+
+	int res = _inflate();
+
+	if (res == 3) {
+	    error("out of memory");
+	} else if (res != 0) {
+	    error("invalid compressed data--format violated");
+	}
+
+    } else if (pkzip && method == STORED) {
+
+	register ulg n = LG(inbuf + LOCLEN);
+
+	if (n != LG(inbuf + LOCSIZ) - (decrypt ? RAND_HEAD_LEN : 0)) {
+
+	    fprintf(stderr, "len %ld, siz %ld\n", n, LG(inbuf + LOCSIZ));
+	    error("invalid compressed data--length mismatch");
+	}
+	while (n--) {
+	    uch c = (uch)get_byte();
+#ifdef CRYPT
+	    if (decrypt) zdecode(c);
+#endif
+	    put_ubyte(c);
+	}
+	flush_window();
+    } else {
+	error("internal error, invalid method");
+    }
+
+    /* Get the crc and original length */
+    if (!pkzip) {
+        /* crc32  (see algorithm.doc)
+	 * uncompressed input size modulo 2^32
+         */
+	for (n = 0; n < 8; n++) {
+	    buf[n] = (uch)get_byte(); /* may cause an error if EOF */
+	}
+	orig_crc = LG(buf);
+	orig_len = LG(buf+4);
+
+    } else if (ext_header) {  /* If extended header, check it */
+	/* signature - 4bytes: 0x50 0x4b 0x07 0x08
+	 * CRC-32 value
+         * compressed size 4-bytes
+         * uncompressed size 4-bytes
+	 */
+	for (n = 0; n < EXTHDR; n++) {
+	    buf[n] = (uch)get_byte(); /* may cause an error if EOF */
+	}
+	orig_crc = LG(buf+4);
+	orig_len = LG(buf+12);
+    }
+
+    /* Validate decompression */
+    if (orig_crc != updcrc(outbuf, 0)) {
+	error("invalid compressed data--crc error");
+    }
+    if (orig_len != (ulg)bytes_out) {
+	error("invalid compressed data--length error");
+    }
+
+    /* Check if there are more entries in a pkzip file */
+    if (pkzip && inptr + 4 < insize && LG(inbuf+inptr) == LOCSIG) {
+	if (to_stdout) {
+	    WARN((stderr,
+		  "%s: %s has more than one entry--rest ignored\n",
+		  progname, ifname));
+	} else {
+	    /* Don't destroy the input zip file */
+	    fprintf(stderr,
+		    "%s: %s has more than one entry -- unchanged\n",
+		    progname, ifname);
+	    exit_code = ERROR;
+	    ext_header = pkzip = 0;
+	    return ERROR;
+	}
+    }
+    ext_header = pkzip = 0; /* for next file */
+    return bytes_out;
+}
+
+const uint8_t bk_magic[2] = {0x11, 0x72};
+#define BK_HEADER_SIZE 6
+
+size_t bk_unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap){
+	method = DEFLATED;
+
+	if (memcmp(in_file, bk_magic, 2) != 0 ){
+		error("\n rarezip: not in banjo-kazooie file format\n");
+	}
+
+	size_t expected_len = ((uint32_t)in_file[2] << 24) | ((uint32_t)in_file[3] << 16) | ((uint32_t)in_file[4] << 8) | ((uint32_t)in_file[5]);
+
+	bufs_init(in_file + BK_HEADER_SIZE, in_len - BK_HEADER_SIZE, out_file, out_cap);
+
+	updcrc(NULL, 0);           /* initialize crc */
+
+	int res = _inflate();
+
+	if (res == 3) {
+	    error("out of memory");
+	} else if (res != 0) {
+	    error("invalid compressed data--format violated");
+	}
+
+	flush_window();
+	ext_header = pkzip = 0; /* for next file */
+	if(expected_len != bytes_out){
+
+		printf("expected size (%d) did not match output size (%d)", expected_len, bytes_out);
+	}
+    return bytes_out;
 }

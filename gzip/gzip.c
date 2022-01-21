@@ -1186,7 +1186,7 @@ local int get_method(in)
 	    exit_code = ERROR;
 	    return -1;
 	}
-	work = unzip;
+	work = _unzip;
 	flags  = (uch)get_byte();
 
 	if ((flags & ENCRYPTED) != 0) {
@@ -1276,7 +1276,7 @@ local int get_method(in)
          * We are thus guaranteed that the entire local header fits in inbuf.
          */
         inptr = 0;
-	work = unzip;
+	work = _unzip;
 	if (check_zipfile(in) != OK) return -1;
 	/* check_zipfile may get ofname from the local header */
 	last_member = 1;

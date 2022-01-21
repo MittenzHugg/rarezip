@@ -25,8 +25,8 @@ static char rcsid[] = "$Id: zip.c,v 0.17 1993/06/10 13:29:25 jloup Exp $";
 
 local ulg crc;       /* crc on uncompressed file data */
 long header_bytes;   /* number of bytes in gzip header */
-local uch *in_file_buffer;
-local size_t in_file_remaining;
+uch *in_file_buffer;
+size_t in_file_remaining;
 uch *out_file_buffer;
 size_t out_file_remaining;
 size_t bufs_init();
@@ -216,6 +216,7 @@ size_t bufs_init(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_
     out_file_remaining = out_cap;
 
     bytes_in = bytes_out = header_bytes = 0;
+    insize = inptr = 0;
 
     memset(inbuf, 0, INBUFSIZ + INBUF_EXTRA);
     memset(outbuf, 0, OUTBUFSIZ + OUTBUF_EXTRA);

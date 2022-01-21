@@ -339,10 +339,14 @@ int *m;                 /* maximum lookup bits, returns actual */
 
   /* Adjust last length count to fill out codes, if needed */
   for (y = 1 << j; j < i; j++, y <<= 1)
-    if ((y -= c[j]) < 0)
+    if ((y -= c[j]) < 0){
+      printf("huft_build(): return 2; bad input: more codes than bits");
       return 2;                 /* bad input: more codes than bits */
-  if ((y -= c[i]) < 0)
+    }
+  if ((y -= c[i]) < 0){
+    printf("huft_build(): return 2; bad input: more codes than bits; 2");
     return 2;
+  }
   c[i] += y;
 
 
@@ -515,8 +519,10 @@ int bl, bd;             /* number of bits decoded by tl[] and td[] */
     NEEDBITS((unsigned)bl)
     if ((e = (t = tl + ((unsigned)b & ml))->e) > 16)
       do {
-        if (e == 99)
+        if (e == 99){
+
           return 1;
+        }
         DUMPBITS(t->b)
         e -= 16;
         NEEDBITS(e)
@@ -547,8 +553,10 @@ int bl, bd;             /* number of bits decoded by tl[] and td[] */
       NEEDBITS((unsigned)bd)
       if ((e = (t = td + ((unsigned)b & md))->e) > 16)
         do {
-          if (e == 99)
+          if (e == 99){
+
             return 1;
+          }
           DUMPBITS(t->b)
           e -= 16;
           NEEDBITS(e)
@@ -621,8 +629,10 @@ int inflate_stored()
   n = ((unsigned)b & 0xffff);
   DUMPBITS(16)
   NEEDBITS(16)
-  if (n != (unsigned)((~b) & 0xffff))
+  if (n != (unsigned)((~b) & 0xffff)){
+
     return 1;                   /* error in compressed data */
+  }
   DUMPBITS(16)
 
 
@@ -672,8 +682,10 @@ int inflate_fixed()
   for (; i < 288; i++)          /* make a complete, but wrong code set */
     l[i] = 8;
   bl = 7;
-  if ((i = huft_build(l, 288, 257, cplens, cplext, &tl, &bl)) != 0)
+  if ((i = huft_build(l, 288, 257, cplens, cplext, &tl, &bl)) != 0){
+
     return i;
+  }
 
 
   /* set up distance table */
@@ -683,13 +695,16 @@ int inflate_fixed()
   if ((i = huft_build(l, 30, 0, cpdist, cpdext, &td, &bd)) > 1)
   {
     huft_free(tl);
+
     return i;
   }
 
 
   /* decompress until an end-of-block code */
-  if (inflate_codes(tl, td, bl, bd))
+  if (inflate_codes(tl, td, bl, bd)){
+
     return 1;
+  }
 
 
   /* free the decoding tables, return */
@@ -740,11 +755,13 @@ int inflate_dynamic()
   nb = 4 + ((unsigned)b & 0xf);         /* number of bit length codes */
   DUMPBITS(4)
 #ifdef PKZIP_BUG_WORKAROUND
-  if (nl > 288 || nd > 32)
+  if (nl > 288 || nd > 32){
 #else
-  if (nl > 286 || nd > 30)
+  if (nl > 286 || nd > 30){
 #endif
+
     return 1;                   /* bad lengths */
+  }
 
 
   /* read in bit-length-code lengths */
@@ -764,6 +781,7 @@ int inflate_dynamic()
   {
     if (i == 1)
       huft_free(tl);
+
     return i;                   /* incomplete code set */
   }
 
@@ -785,8 +803,10 @@ int inflate_dynamic()
       NEEDBITS(2)
       j = 3 + ((unsigned)b & 3);
       DUMPBITS(2)
-      if ((unsigned)i + j > n)
+      if ((unsigned)i + j > n){
+
         return 1;
+      }
       while (j--)
         ll[i++] = l;
     }
@@ -795,8 +815,10 @@ int inflate_dynamic()
       NEEDBITS(3)
       j = 3 + ((unsigned)b & 7);
       DUMPBITS(3)
-      if ((unsigned)i + j > n)
+      if ((unsigned)i + j > n){
+
         return 1;
+      }
       while (j--)
         ll[i++] = 0;
       l = 0;
@@ -806,8 +828,10 @@ int inflate_dynamic()
       NEEDBITS(7)
       j = 11 + ((unsigned)b & 0x7f);
       DUMPBITS(7)
-      if ((unsigned)i + j > n)
+      if ((unsigned)i + j > n){
+
         return 1;
+      }
       while (j--)
         ll[i++] = 0;
       l = 0;
@@ -832,6 +856,7 @@ int inflate_dynamic()
       fprintf(stderr, " incomplete literal tree\n");
       huft_free(tl);
     }
+
     return i;                   /* incomplete code set */
   }
   bd = dbits;
@@ -846,14 +871,17 @@ int inflate_dynamic()
       huft_free(td);
     }
     huft_free(tl);
+
     return i;                   /* incomplete code set */
 #endif
   }
 
 
   /* decompress until an end-of-block code */
-  if (inflate_codes(tl, td, bl, bd))
+  if (inflate_codes(tl, td, bl, bd)){
+
     return 1;
+  }
 
 
   /* free the decoding tables, return */
@@ -876,7 +904,6 @@ int *e;                 /* last block flag */
   /* make local bit buffer */
   b = bb;
   k = bk;
-
 
   /* read in last block bit */
   NEEDBITS(1)
@@ -905,12 +932,13 @@ int *e;                 /* last block flag */
 
 
   /* bad block type */
+
   return 2;
 }
 
 
 
-int inflate()
+int _inflate()
 /* decompress an inflated entry */
 {
   int e;                /* last block flag */
@@ -928,8 +956,10 @@ int inflate()
   h = 0;
   do {
     hufts = 0;
-    if ((r = inflate_block(&e)) != 0)
+    if ((r = inflate_block(&e)) != 0){
+
       return r;
+    }
     if (hufts > h)
       h = hufts;
   } while (!e);
@@ -947,8 +977,6 @@ int inflate()
 
 
   /* return success */
-#ifdef DEBUG
-  fprintf(stderr, "<%u> ", h);
-#endif /* DEBUG */
+// 
   return 0;
 }

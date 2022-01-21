@@ -20,6 +20,7 @@
  * too often
  */
 #include <stdio.h>
+#include <stdint.h>
 #if !defined(NO_STRING_H) || defined(STDC_HEADERS)
 #  include <string.h>
 #  if !defined(STDC_HEADERS) && !defined(NO_MEMORY_H) && !defined(__GNUC__)
@@ -146,6 +147,8 @@ extern char ofname[];   /* output file name or "stdout" */
 extern char *progname;  /* program name */
 extern uch *out_file_buffer;
 extern size_t out_file_remaining;
+extern uch *in_file_buffer;
+extern size_t in_file_remaining;
 
 extern int print_tab;
 
@@ -266,9 +269,10 @@ extern int save_orig_name; /* set if original name must be saved */
 extern int _zip        OF((int in, int out));
 extern int file_read  OF((char *buf,  unsigned size));
 extern int buffer_read  OF((char *buf,  unsigned size));
+extern size_t bufs_init(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 
 	/* in unzip.c */
-extern int unzip      OF((int in, int out));
+extern int _unzip      OF((int in, int out));
 extern int check_zipfile OF((int in));
 
 	/* in unpack.c */
@@ -317,4 +321,4 @@ extern void display_ratio OF((long num, long den, FILE *file));
 extern voidp xmalloc      OF((unsigned int size));
 
 	/* in inflate.c */
-extern int inflate OF((void));
+extern int _inflate OF((void));

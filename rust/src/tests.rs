@@ -14,7 +14,7 @@ fn bk_unzip() {
     assert_eq!(out_vec, [0;20]);
 }
 
-// #[test]
+#[test]
 fn deflate() {
     let in_vec : [u8; 20] = [0; 20];
     let out_vec = super::deflate(&in_vec);

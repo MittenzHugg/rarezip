@@ -9,10 +9,13 @@ extern "C"{
 #endif 
 
 size_t deflate(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+size_t inflate(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 
 size_t zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+size_t unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 
 size_t bk_zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+size_t bk_unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 
 #ifdef __cplusplus
 }
