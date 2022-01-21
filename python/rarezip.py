@@ -9,13 +9,18 @@ PATH = os.path.dirname(__file__)
 
 ffi.cdef("""
     size_t deflate(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+    size_t inflate(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+
     size_t zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+    size_t unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+
     size_t bk_zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
+    size_t bk_unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 """) # here CFFI is using the cdef from cython.
 
-ffi.set_source("_rarezip",
-    '    #define AS_LIBRARY\n #include "../gzip/librarezip.h"',
-    libraries=["rarezip"],
+ffi.set_source("rarezip",
+    '#include "../gzip/librarezip.h"',
+    libraries=['rarezip'],
     library_dirs=[os.path.join(PATH, "../gzip")],
 )
 

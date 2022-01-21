@@ -2,20 +2,24 @@ SUPPORTED_LANGS = c cpp rust python
 
 CPP = g++
 CARGO = cargo
+PYTHON = python3
 
 GZIP_DIR = gzip
 
 C_DIR = c
 CPP_DIR = cpp
 RUST_DIR = rust
+PY_DIR = python
 
 C_STATIC_LIBRARY = $(GZIP_DIR)/librarezip.a
 C_HEADER = $(GZIP_DIR)/librarezip.h
 
 all: $(SUPPORTED_LANGS)
 
+$(GZIP_DIR)/%:
+	cd $(GZIP_DIR) && $(MAKE) $*
+
 $(GZIP_DIR)/librarezip.a:
-	cd $(GZIP_DIR) && $(MAKE)
 
 c: $(GZIP_DIR)/librarezip.a
 	cp $< $(C_DIR)/librarezip.a
@@ -30,11 +34,12 @@ rust: #dependencies handled by cargo build.rs
 	cd $(RUST_DIR) && $(CARGO) test -- --test-threads=1
 
 python: $(GZIP_DIR)/librarezip.a
-	python3 python/rarezip.py
+	cd $(PY_DIR) && $(PYTHON) rarezip.py
 
 clean:
 	rm -rf $(CPP_DIR)/*
 	rm -rf $(C_DIR)/*
+	rm -rf $(PY_DIR)/*.c $(PY_DIR)/*.o $(PY_DIR)/*.so
 	cd $(RUST_DIR) && $(CARGO) clean
 	cd $(GZIP_DIR) && $(MAKE) clean
 

@@ -73,10 +73,11 @@ OBJA =
 
 SEDCMD = 
 
-CFLAGS := -O
+CFLAGS := -O -fPIC
 # If you want debug on by default, use: CFLAGS="-g" ./configure
 LDFLAGS = $(CFLAGS)
-librarezip.a : CFLAGS := -O -DAS_LIBRARY
+librarezip.a : CFLAGS := -O -DAS_LIBRARY -fPIC
+# librarezip.so : CFLAGS := -O -DAS_LIBRARY -fPIC
 
 G=
 # To install znew, zmore, etc... as gznew, gzmore... use: G=g
@@ -89,6 +90,9 @@ X=
 
 O=.o
 # For OS/2 or MSDOS, use: O=.obj
+
+SO = .so
+# For OS/2 or MSDOS, use: O=.dll
 
 prefix = /usr/local
 exec_prefix = $(prefix)
@@ -122,6 +126,9 @@ SRCS = gzip.c zip.c deflate.c trees.c bits.c unzip.c inflate.c util.c crypt.c\
 
 OBJS = gzip$O zip$O deflate$O trees$O bits$O unzip$O inflate$O util$O \
        crypt$O lzw$O unlzw$O unpack$O unlzh$O getopt$O $(OBJA)
+
+SHARED_OBJS = gzip$(SO) zip$(SO) deflate$(SO) trees$(SO) bits$(SO) unzip$(SO) inflate$(SO) util$(SO) \
+       crypt$(SO) lzw$(SO) unlzw$(SO) unpack$(SO) unlzh$(SO) getopt$(SO) $(OBJA)
 
 HDRS = gzip.h lzw.h tailor.h revision.h crypt.h getopt.h
 
@@ -290,7 +297,7 @@ TAGS: $(SRCS) $(HDRS)
 
 clean:
 	rm -f librarezip.a
-	rm -f *$O gzip$X gunzip$X ungzip$X $(ZCAT)$X add$X sub$X a.out core
+	rm -f *$O *$(SO) gzip$X gunzip$X ungzip$X $(ZCAT)$X add$X sub$X a.out core
 	rm -f $(G)zcmp $(SCRIPTS) _gztest*
 	rm -f *.aux *.cp *.cps *.dvi *.fn *.fns *.ky *.kys *.log
 	rm -f *.pg *.pgs *.toc *.tp *.tps *.vr *.vrs
@@ -322,6 +329,8 @@ zipdist: $(DISTFILES) Makefile
 librarezip.a: $(OBJS)
 	$(AR) rcs $@ $^
 
+# librarezip.so: $(OBJS)
+# 	$(CC) --shared $(DEFS) -DAS_LIBRARY $(CFLAGS) $^ -o $@
 
 gzip$X:	Makefile $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
