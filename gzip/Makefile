@@ -77,7 +77,6 @@ CFLAGS := -O
 # If you want debug on by default, use: CFLAGS="-g" ./configure
 LDFLAGS = $(CFLAGS)
 librarezip.a : CFLAGS := -O -DAS_LIBRARY
-librarezip.so : CFLAGS := -O -DAS_LIBRARY -fPIC
 
 G=
 # To install znew, zmore, etc... as gznew, gzmore... use: G=g
@@ -163,8 +162,8 @@ SCRIPTS = $(G)zdiff $(G)zgrep $(G)zmore $(G)znew $(G)zforce gzexe
 
 #.PHONY: default all force test check
 
-default:  librarezip.so librarezip.a
-all:	librarezip.a librarezip.so gzip$X $(G)zdiff $(G)zgrep $(G)zmore $(G)znew $(G)zforce gzexe
+default: librarezip.a
+all:	librarezip.a gzip$X $(G)zdiff $(G)zgrep $(G)zmore $(G)znew $(G)zforce gzexe
 force:
 
 #### Start of specific targets section. ####
@@ -290,7 +289,7 @@ TAGS: $(SRCS) $(HDRS)
 	cd $(srcdir); etags $(SRCS) $(HDRS)
 
 clean:
-	rm -f librarezip.a librarezip.so
+	rm -f librarezip.a
 	rm -f *$O gzip$X gunzip$X ungzip$X $(ZCAT)$X add$X sub$X a.out core
 	rm -f $(G)zcmp $(SCRIPTS) _gztest*
 	rm -f *.aux *.cp *.cps *.dvi *.fn *.fns *.ky *.kys *.log
@@ -322,9 +321,6 @@ zipdist: $(DISTFILES) Makefile
 
 librarezip.a: $(OBJS)
 	$(AR) rcs $@ $^
-
-librarezip.so: $(OBJS)
-	$(CC) -shared $^ -o $@ $(DEFS) $(CFLAGS)
 
 
 gzip$X:	Makefile $(OBJS)
