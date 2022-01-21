@@ -1,5 +1,7 @@
 use inflate as __inflate;
 
+
+
 mod __rarezip {
     use libc;
     #[link(name = "rarezip", kind = "static")]
@@ -59,3 +61,6 @@ pub mod bk{
         return final_out_buffer.into_iter().map(|v| v.into_iter()).flatten().collect();
     }
 }
+
+#[cfg(test)]
+mod tests;

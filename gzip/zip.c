@@ -215,7 +215,8 @@ size_t bufs_init(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_
     out_file_buffer = out_file;
     out_file_remaining = out_cap;
 
-    bytes_out = 0;
+    bytes_in = bytes_out = header_bytes = 0;
+
     memset(inbuf, 0, INBUFSIZ + INBUF_EXTRA);
     memset(outbuf, 0, OUTBUFSIZ + OUTBUF_EXTRA);
     memset(window, 0, 2*WSIZE);
