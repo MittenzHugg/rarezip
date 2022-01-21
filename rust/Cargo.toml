@@ -9,6 +9,10 @@ crate-type = ["lib"]
 name = "rarezip"
 path = "./src/rarezip.rs"
 
+[[bin]]
+name = "bk_zip"
+path = "./src/bk_zip.rs"
+
 [dependencies]
 libc = "0.2"
 inflate = "0.4.5"
