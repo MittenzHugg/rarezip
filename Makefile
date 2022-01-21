@@ -29,6 +29,9 @@ rust: #dependencies handled by cargo build.rs
 	cd $(RUST_DIR) && $(CARGO) build --release
 	cd $(RUST_DIR) && $(CARGO) test -- --test-threads=1
 
+python: $(GZIP_DIR)/librarezip.a
+	python3 python/rarezip.py
+
 clean:
 	rm -rf $(CPP_DIR)/*
 	rm -rf $(C_DIR)/*
