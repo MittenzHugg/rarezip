@@ -48,7 +48,7 @@ pub fn unzip(in_buffer : &[u8]) -> Vec<u8>{
 }
 
 pub mod bk{
-    // use inflate as __inflate;
+    use inflate as __inflate;
     use super::__rarezip;
     use super::MAX_MATCH;
 
@@ -63,11 +63,13 @@ pub mod bk{
     pub fn unzip(in_buffer : &[u8]) -> Vec<u8>{
         assert_eq!(in_buffer[0..2],[0x11, 0x72], "in_buffer does not have bk header");
         let expected_len = u32::from_be_bytes(in_buffer[2..6].try_into().unwrap()) as usize;
-        // let mut out_buffer : Vec<u8> = __inflate::inflate_bytes(&in_buffer[6..]).unwrap();
-        let mut out_buffer: Vec<u8> = vec![0; expected_len];
-        let out_len = unsafe{__rarezip::bk_unzip(in_buffer.as_ptr(), in_buffer.len(), out_buffer.as_mut_ptr(), out_buffer.len())};
-        assert_eq!(expected_len, out_len, "out size does not match expected size");
+        let out_buffer = __inflate::inflate_bytes(&in_buffer[6..]).unwrap();
+        assert_eq!(expected_len, out_buffer.len());
         return out_buffer;
+        // let mut out_buffer: Vec<u8> = vec![0; expected_len];
+        // let out_len = unsafe{__rarezip::bk_unzip(in_buffer.as_ptr(), in_buffer.len(), out_buffer.as_mut_ptr(), out_buffer.len())};
+        // assert_eq!(expected_len, out_len, "out size does not match expected size");
+        // return out_buffer;
     }
 }
 
