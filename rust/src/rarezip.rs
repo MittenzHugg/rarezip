@@ -5,7 +5,7 @@ const MAX_MATCH : usize = 0x256;
 
 mod __rarezip {
     use libc;
-    #[link(name = "rarezip", kind="static")]
+    #[link(name = "rarezip")]
     extern {
         pub fn deflate(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
         pub fn inflate(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;

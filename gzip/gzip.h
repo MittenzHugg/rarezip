@@ -59,7 +59,7 @@ typedef unsigned long  ulg;
 /* methods 4 to 7 reserved */
 #define DEFLATED    8
 #define MAX_METHODS 9
-extern int method;         /* compression method */
+extern _Thread_local int method;         /* compression method */
 
 /* To save memory for 16 bit systems, some arrays are overlaid between
  * the various modules:
@@ -113,10 +113,10 @@ extern int method;         /* compression method */
 #  define FREE(array)
 #endif
 
-EXTERN(uch, inbuf);          /* input buffer */
-EXTERN(uch, outbuf);         /* output buffer */
-EXTERN(ush, d_buf);          /* buffer for distances, see trees.c */
-EXTERN(uch, window);         /* Sliding window and suffix table (unlzw) */
+EXTERN(_Thread_local uch, inbuf);          /* input buffer */
+EXTERN(_Thread_local uch, outbuf);         /* output buffer */
+EXTERN(_Thread_local ush, d_buf);          /* buffer for distances, see trees.c */
+EXTERN(_Thread_local uch, window);         /* Sliding window and suffix table (unlzw) */
 #define tab_suffix window
 #ifndef MAXSEG_64K
 #  define tab_prefix prev    /* hash link (see deflate.c) */
@@ -129,31 +129,29 @@ EXTERN(uch, window);         /* Sliding window and suffix table (unlzw) */
    EXTERN(ush, tab_prefix1); /* prefix for odd  codes */
 #endif
 
-extern unsigned insize; /* valid bytes in inbuf */
-extern unsigned inptr;  /* index of next byte to be processed in inbuf */
-extern unsigned outcnt; /* bytes in output buffer */
+extern _Thread_local unsigned insize; /* valid bytes in inbuf */
+extern _Thread_local unsigned inptr;  /* index of next byte to be processed in inbuf */
+extern _Thread_local unsigned outcnt; /* bytes in output buffer */
 
-extern long bytes_in;   /* number of input bytes */
-extern long bytes_out;  /* number of output bytes */
-extern long header_bytes;/* number of bytes in gzip header */
+extern _Thread_local long bytes_in;   /* number of input bytes */
+extern _Thread_local long bytes_out;  /* number of output bytes */
+extern _Thread_local long header_bytes;/* number of bytes in gzip header */
 
 #define isize bytes_in
 /* for compatibility with old zip sources (to be cleaned) */
 
-extern int  ifd;        /* input file descriptor */
-extern int  ofd;        /* output file descriptor */
-extern char ifname[];   /* input file name or "stdin" */
-extern char ofname[];   /* output file name or "stdout" */
-extern char *progname;  /* program name */
-extern uch *out_file_buffer;
-extern size_t out_file_remaining;
-extern uch *in_file_buffer;
-extern size_t in_file_remaining;
+extern _Thread_local int  ifd;        /* input file descriptor */
+extern _Thread_local int  ofd;        /* output file descriptor */
+extern _Thread_local char ifname[];   /* input file name or "stdin" */
+extern _Thread_local char ofname[];   /* output file name or "stdout" */
+extern _Thread_local char *progname;  /* program name */
+extern _Thread_local uch *out_file_buffer;
+extern _Thread_local size_t out_file_remaining;
+extern _Thread_local uch *in_file_buffer;
+extern _Thread_local size_t in_file_remaining;
 
-extern int print_tab;
-
-extern long time_stamp; /* original time stamp (modification time) */
-extern long ifile_size; /* input file size, -1 for devices (debug only) */
+extern _Thread_local long time_stamp; /* original time stamp (modification time) */
+extern _Thread_local long ifile_size; /* input file size, -1 for devices (debug only) */
 
 typedef int file_t;     /* Do not use stdio */
 #define NO_FILE  (-1)   /* in memory compression */
@@ -197,14 +195,14 @@ typedef int file_t;     /* Do not use stdio */
  * distances are limited to MAX_DIST instead of WSIZE.
  */
 
-extern int decrypt;        /* flag to turn on decryption */
-extern int exit_code;      /* program exit code */
-extern int verbose;        /* be verbose (-v) */
-extern int quiet;          /* be quiet (-q) */
-extern int level;          /* compression level */
-extern int test;           /* check .z file integrity */
-extern int to_stdout;      /* output to stdout (-c) */
-extern int save_orig_name; /* set if original name must be saved */
+extern _Thread_local int decrypt;        /* flag to turn on decryption */
+extern _Thread_local int exit_code;      /* program exit code */
+extern _Thread_local int verbose;        /* be verbose (-v) */
+extern _Thread_local int quiet;          /* be quiet (-q) */
+extern _Thread_local int level;          /* compression level */
+extern _Thread_local int test;           /* check .z file integrity */
+extern _Thread_local int to_stdout;      /* output to stdout (-c) */
+extern _Thread_local int save_orig_name; /* set if original name must be saved */
 
 #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf(0))
 #define try_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf(1))
@@ -299,7 +297,7 @@ void     send_bits  OF((int value, int length));
 unsigned bi_reverse OF((unsigned value, int length));
 void     bi_windup  OF((void));
 void     copy_block OF((char *buf, unsigned len, int header));
-extern   int (*read_buf) OF((char *buf, unsigned size));
+extern   _Thread_local int (*read_buf) OF((char *buf, unsigned size));
 
 	/* in util.c: */
 extern int copy           OF((int in, int out));

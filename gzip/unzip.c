@@ -40,10 +40,10 @@ static char rcsid[] = "$Id: unzip.c,v 0.13 1993/06/10 13:29:00 jloup Exp $";
 
 /* Globals */
 
-int decrypt;        /* flag to turn on decryption */
-char *key;          /* not used--needed to link crypt.c */
-int pkzip = 0;      /* set for a pkzip file */
-int ext_header = 0; /* set if extended local header */
+_Thread_local int  decrypt;        /* flag to turn on decryption */
+_Thread_local char *key;          /* not used--needed to link crypt.c */
+_Thread_local int pkzip = 0;      /* set for a pkzip file */
+_Thread_local int ext_header = 0; /* set if extended local header */
 
 /* ===========================================================================
  * Check zip file and advance inptr to the start of the compressed data.

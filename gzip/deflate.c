@@ -151,17 +151,17 @@ typedef unsigned IPos;
 /* DECLARE(Pos, head, 1<<HASH_BITS); */
 /* Heads of the hash chains or NIL. */
 
-ulg window_size = (ulg)2*WSIZE;
+_Thread_local ulg window_size = (ulg)2*WSIZE;
 /* window size, 2*WSIZE except for MMAP or BIG_MEM, where it is the
  * input file length plus MIN_LOOKAHEAD.
  */
 
-long block_start;
+_Thread_local long block_start;
 /* window position at the beginning of the current output block. Gets
  * negative when the window is moved backwards.
  */
 
-local unsigned ins_h;  /* hash index of string to be inserted */
+local _Thread_local unsigned ins_h;  /* hash index of string to be inserted */
 
 #define H_SHIFT  ((HASH_BITS+MIN_MATCH-1)/MIN_MATCH)
 /* Number of bits by which ins_h and del_h must be shifted at each
@@ -170,22 +170,22 @@ local unsigned ins_h;  /* hash index of string to be inserted */
  *   H_SHIFT * MIN_MATCH >= HASH_BITS
  */
 
-unsigned int near prev_length;
+_Thread_local unsigned int near prev_length;
 /* Length of the best match at previous step. Matches not greater than this
  * are discarded. This is used in the lazy match evaluation.
  */
 
-      unsigned near strstart;      /* start of string to insert */
-      unsigned near match_start;   /* start of matching string */
-local int           eofile;        /* flag set at end of input file */
-local unsigned      lookahead;     /* number of valid bytes ahead in window */
+      _Thread_local unsigned near strstart;      /* start of string to insert */
+      _Thread_local unsigned near match_start;   /* start of matching string */
+local _Thread_local int           eofile;        /* flag set at end of input file */
+local _Thread_local unsigned      lookahead;     /* number of valid bytes ahead in window */
 
-unsigned near max_chain_length;
+_Thread_local unsigned near max_chain_length;
 /* To speed up deflation, hash chains are never searched beyond this length.
  * A higher limit improves compression ratio but degrades the speed.
  */
 
-local unsigned int max_lazy_match;
+local _Thread_local unsigned int max_lazy_match;
 /* Attempt to find a better match only when the current match is strictly
  * smaller than this value. This mechanism is used only for compression
  * levels >= 4.
@@ -196,10 +196,10 @@ local unsigned int max_lazy_match;
  * max_insert_length is used only for compression levels <= 3.
  */
 
-local int compr_level;
+local _Thread_local int compr_level;
 /* compression level (1..9) */
 
-unsigned near good_match;
+_Thread_local unsigned near good_match;
 /* Use a faster search when the previous match is longer than this */
 
 
@@ -219,10 +219,10 @@ typedef struct config {
 #ifdef  FULL_SEARCH
 # define nice_match MAX_MATCH
 #else
-  int near nice_match; /* Stop searching when current match exceeds this */
+  _Thread_local int near nice_match; /* Stop searching when current match exceeds this */
 #endif
 
-local config configuration_table[10] = {
+local _Thread_local config configuration_table[10] = {
 /*      good lazy nice chain */
 /* 0 */ {0,    0,  0,    0},  /* store only */
 /* 1 */ {4,    4,  8,    4},  /* maximum speed, no lazy matches */
@@ -287,7 +287,7 @@ void lm_init (pack_level, flags)
     int pack_level; /* 0: store, 1: best speed, 9: best compression */
     ush *flags;     /* general purpose bit flag */
 {
-
+    int i;
     register unsigned j;
 
     if (pack_level < 1 || pack_level > 9) error("bad pack level");
@@ -340,7 +340,6 @@ void lm_init (pack_level, flags)
     /* If lookahead < MIN_MATCH, ins_h is garbage, but this is
      * not important since only literal bytes will be emitted.
      */
-    print_tab--;
 }
 
 /* ===========================================================================
@@ -479,7 +478,6 @@ int longest_match(cur_match)
     } while ((cur_match = prev[cur_match & WMASK]) > limit
 	     && --chain_length != 0);
 
-    print_tab--;
     return best_len;
 }
 #endif /* ASMV */
@@ -566,7 +564,6 @@ local void fill_window()
             lookahead += n;
         }
     }
-    print_tab--;
 }
 
 /* ===========================================================================
@@ -657,7 +654,6 @@ local ulg deflate_fast()
         while (lookahead < MIN_LOOKAHEAD && !eofile) fill_window();
 
     }
-    print_tab--;
     return FLUSH_BLOCK(1); /* eof */
 }
 
@@ -678,7 +674,7 @@ ulg _deflate()
     extern long isize;        /* byte length of input file, for debug only */
 #endif
 
-    if (compr_level <= 3) {print_tab--; return deflate_fast();} /* optimized for speed */
+    if (compr_level <= 3) {return deflate_fast();} /* optimized for speed */
 
     /* Process the input block. */
     while (lookahead != 0) {
@@ -768,6 +764,5 @@ ulg _deflate()
     }
     if (match_available) ct_tally (0, window[strstart-1]);
     
-    print_tab--;
     return FLUSH_BLOCK(1); /* eof */
 }

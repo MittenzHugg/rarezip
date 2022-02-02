@@ -185,10 +185,10 @@ typedef RETSIGTYPE (*sig_type) OF((int));
 
 		/* global buffers */
 
-DECLARE(uch, inbuf,  INBUFSIZ +INBUF_EXTRA);
-DECLARE(uch, outbuf, OUTBUFSIZ+OUTBUF_EXTRA);
-DECLARE(ush, d_buf,  DIST_BUFSIZE);
-DECLARE(uch, window, 2L*WSIZE);
+_Thread_local DECLARE(uch, inbuf,  INBUFSIZ +INBUF_EXTRA);
+_Thread_local DECLARE(uch, outbuf, OUTBUFSIZ+OUTBUF_EXTRA);
+_Thread_local DECLARE(ush, d_buf,  DIST_BUFSIZE);
+_Thread_local DECLARE(uch, window, 2L*WSIZE);
 #ifndef MAXSEG_64K
     DECLARE(ush, tab_prefix, 1L<<BITS);
 #else
@@ -199,46 +199,46 @@ DECLARE(uch, window, 2L*WSIZE);
 		/* local variables */
 
 int ascii = 0;        /* convert end-of-lines to local OS conventions */
-int to_stdout = 0;    /* output to stdout (-c) */
+_Thread_local int to_stdout = 0;    /* output to stdout (-c) */
 int decompress = 0;   /* decompress (-d) */
 int force = 0;        /* don't ask questions, compress links (-f) */
 int no_name = -1;     /* don't save or restore the original file name */
 int no_time = -1;     /* don't save or restore the original file time */
 int recursive = 0;    /* recurse through directories (-r) */
 int list = 0;         /* list the file contents (-l) */
-int verbose = 0;      /* be verbose (-v) */
-int quiet = 0;        /* be very quiet (-q) */
+_Thread_local int verbose = 0;      /* be verbose (-v) */
+_Thread_local int quiet = 0;        /* be very quiet (-q) */
 int do_lzw = 0;       /* generate output compatible with old compress (-Z) */
-int test = 0;         /* test .gz file integrity */
+_Thread_local int test = 0;         /* test .gz file integrity */
 int foreground;       /* set if program run in foreground */
-char *progname;       /* program name */
+_Thread_local char *progname;       /* program name */
 int maxbits = BITS;   /* max bits per code for LZW */
-int method = DEFLATED;/* compression method */
-int level = 6;        /* compression level */
-int exit_code = OK;   /* program exit code */
-int save_orig_name;   /* set if original name must be saved */
+_Thread_local int method = DEFLATED;/* compression method */
+int _Thread_local level = 6;        /* compression level */
+_Thread_local int exit_code = OK;   /* program exit code */
+_Thread_local int save_orig_name;   /* set if original name must be saved */
 int last_member;      /* set for .zip and .Z files */
 int part_nb;          /* number of parts in .gz file */
-long time_stamp;      /* original time stamp (modification time) */
-long ifile_size;      /* input file size, -1 for devices (debug only) */
+_Thread_local long time_stamp;      /* original time stamp (modification time) */
+long _Thread_local ifile_size;      /* input file size, -1 for devices (debug only) */
 char *env;            /* contents of GZIP env variable */
 char **args = NULL;   /* argv pointer if GZIP env variable defined */
 char z_suffix[MAX_SUFFIX+1]; /* default suffix (can be set with --suffix) */
 int  z_len;           /* strlen(z_suffix) */
 
-long bytes_in;             /* number of input bytes */
-long bytes_out;            /* number of output bytes */
+long _Thread_local bytes_in;             /* number of input bytes */
+long _Thread_local bytes_out;            /* number of output bytes */
 long total_in = 0;         /* input bytes for all files */
 long total_out = 0;        /* output bytes for all files */
-char ifname[MAX_PATH_LEN]; /* input file name */
-char ofname[MAX_PATH_LEN]; /* output file name */
+_Thread_local char ifname[MAX_PATH_LEN]; /* input file name */
+_Thread_local char ofname[MAX_PATH_LEN]; /* output file name */
 int  remove_ofname = 0;	   /* remove output file on error */
 struct stat istat;         /* status for input file */
-int  ifd;                  /* input file descriptor */
-int  ofd;                  /* output file descriptor */
-unsigned insize;           /* valid bytes in inbuf */
-unsigned inptr;            /* index of next byte to be processed in inbuf */
-unsigned outcnt;           /* bytes in output buffer */
+_Thread_local int  ifd;                  /* input file descriptor */
+_Thread_local int  ofd;                  /* output file descriptor */
+unsigned _Thread_local insize;           /* valid bytes in inbuf */
+unsigned _Thread_local inptr;            /* index of next byte to be processed in inbuf */
+unsigned _Thread_local outcnt;           /* bytes in output buffer */
 
 struct option longopts[] =
 {

@@ -67,9 +67,9 @@ static char rcsid[] = "$Id: bits.c,v 0.9 1993/06/11 10:16:58 jloup Exp $";
  * Local data used by the "bit string" routines.
  */
 
-local file_t zfile; /* output gzip file */
+local _Thread_local file_t zfile; /* output gzip file */
 
-local unsigned short bi_buf;
+local _Thread_local unsigned short bi_buf;
 /* Output buffer. bits are inserted starting at the bottom (least significant
  * bits).
  */
@@ -79,12 +79,12 @@ local unsigned short bi_buf;
  * more than 16 bits on some systems.)
  */
 
-local int bi_valid;
+local _Thread_local int bi_valid;
 /* Number of valid bits in bi_buf.  All bits above the last valid bit
  * are always zero.
  */
 
-int (*read_buf) OF((char *buf, unsigned size));
+_Thread_local int (*read_buf) OF((char *buf, unsigned size));
 /* Current input function. Set to mem_read for in-memory compression */
 
 #ifdef DEBUG

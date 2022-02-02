@@ -23,14 +23,13 @@ static char rcsid[] = "$Id: zip.c,v 0.17 1993/06/10 13:29:25 jloup Exp $";
 #  include <fcntl.h>
 #endif
 
-local ulg crc;       /* crc on uncompressed file data */
-long header_bytes;   /* number of bytes in gzip header */
-uch *in_file_buffer;
-size_t in_file_remaining;
-uch *out_file_buffer;
-size_t out_file_remaining;
+_Thread_local local ulg crc;       /* crc on uncompressed file data */
+_Thread_local long header_bytes;   /* number of bytes in gzip header */
+_Thread_local uch *in_file_buffer;
+_Thread_local size_t in_file_remaining;
+_Thread_local uch *out_file_buffer;
+_Thread_local size_t out_file_remaining;
 size_t bufs_init();
-int print_tab;
 
 /* ===========================================================================
  * Deflate in to out.

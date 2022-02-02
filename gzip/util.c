@@ -30,7 +30,7 @@ static char rcsid[] = "$Id: util.c,v 0.15 1993/06/15 09:04:13 jloup Exp $";
 #include "gzip.h"
 #include "crypt.h"
 
-extern ulg crc_32_tab[];   /* crc table, defined below */
+extern _Thread_local ulg crc_32_tab[];   /* crc table, defined below */
 
 /* ===========================================================================
  * Copy input to output unchanged: zcat == cat with --force.
@@ -63,7 +63,7 @@ ulg updcrc(s, n)
 {
     register ulg c;         /* temporary variable */
 
-    static ulg crc = (ulg)0xffffffffL; /* shift register contents */
+    _Thread_local static ulg crc = (ulg)0xffffffffL; /* shift register contents */
 
     if (s == NULL) {
 	c = 0xffffffffL;
@@ -436,7 +436,7 @@ voidp xmalloc (size)
 /* ========================================================================
  * Table of CRC-32's of all single-byte values (made by makecrc.c)
  */
-ulg crc_32_tab[] = {
+_Thread_local ulg crc_32_tab[] = {
   0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
   0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
   0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
