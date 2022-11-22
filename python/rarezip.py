@@ -47,10 +47,11 @@ def bk_zip(in_array):
     out_len = rarezip.bk_zip( ffi.cast("uint8_t*", in_arr.ctypes.data), in_len, ffi.cast("uint8_t*", out_arr.ctypes.data), len(out_arr))
 
     #resize and align/pad end with (0xaa)
-    new_out = np.zeros((out_len + 7) & ~0x7, dtype=np.uint8)
-    new_out.fill(0xaa)
-    new_out[:out_len] = out_arr[:out_len]
+    # new_out = np.zeros((out_len + 7) & ~0x7, dtype=np.uint8)
+    # new_out.fill(0xaa)
+    # new_out[:out_len] = out_arr[:out_len]
     return new_out
+    return out_arr
 
 
 if __name__ == "__main__":

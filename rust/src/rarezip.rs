@@ -56,7 +56,7 @@ pub mod bk{
         let mut out_buffer: Vec<u8> = vec![0; in_buffer.len() + MAX_MATCH];
         let out_length = unsafe{__rarezip::bk_zip(in_buffer.as_ptr(), in_buffer.len(), out_buffer.as_mut_ptr(), out_buffer.len())};
         out_buffer.resize(out_length, 0);
-        out_buffer.resize((out_buffer.len() + (8-1)) & !(8-1), 0xAA);
+        // out_buffer.resize((out_buffer.len() + (8-1)) & !(8-1), 0xAA);
         return out_buffer
     }
 
