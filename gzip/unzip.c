@@ -359,7 +359,36 @@ size_t bk_unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_c
 	ext_header = pkzip = 0; /* for next file */
 	if(expected_len != bytes_out){
 
-		printf("expected size (%d) did not match output size (%d)", expected_len, bytes_out);
+		printf("expected size (%ld) did not match output size (%ld)", expected_len, bytes_out);
+	}
+    return bytes_out;
+}
+
+#define BT_HEADER_SIZE 2
+
+size_t bt_unzip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap){
+	method = DEFLATED;
+
+	size_t expected_len = ((uint32_t)in_file[0] << 8) | ((uint32_t)in_file[1]);
+	expected_len *= 16;
+
+	bufs_init(in_file + BT_HEADER_SIZE, in_len - BT_HEADER_SIZE, out_file, out_cap);
+
+	updcrc(NULL, 0);           /* initialize crc */
+
+	int res = _inflate();
+
+	if (res == 3) {
+	    error("out of memory");
+	} else if (res != 0) {
+	    error("invalid compressed data--format violated");
+	}
+
+	flush_window();
+	ext_header = pkzip = 0; /* for next file */
+	if(expected_len != bytes_out){
+
+		printf("expected size (%ld) did not match output size (%ld)", expected_len, bytes_out);
 	}
     return bytes_out;
 }
