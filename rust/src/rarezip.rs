@@ -13,6 +13,8 @@ mod __rarezip {
         pub fn unzip(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
         pub fn bk_zip(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
         pub fn bk_unzip(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
+        pub fn bt_zip(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
+        pub fn bt_unzip(in_file : *const u8, in_len: libc::size_t, out_file: *mut u8, out_cap: libc::size_t) -> libc::size_t;
     }
 }
 
@@ -81,7 +83,7 @@ pub mod bt{
 
     pub fn zip(in_buffer : &[u8]) -> Vec<u8>{
         let mut out_buffer: Vec<u8> = vec![0; in_buffer.len() + MAX_MATCH];
-        let out_length = unsafe{__rarezip::bk_zip(in_buffer.as_ptr(), in_buffer.len(), out_buffer.as_mut_ptr(), out_buffer.len())};
+        let out_length = unsafe{__rarezip::bt_zip(in_buffer.as_ptr(), in_buffer.len(), out_buffer.as_mut_ptr(), out_buffer.len())};
         out_buffer.resize(out_length, 0);
         // out_buffer.resize((out_buffer.len() + (8-1)) & !(8-1), 0xAA);
         return out_buffer
