@@ -207,6 +207,28 @@ size_t bk_zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap
     return bytes_out;
 }
 
+size_t bt_zip(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap){
+    uch  flags = 0;         /* general purpose bit flags */
+    ush  attr = 0;          /* ascii/binary flag */
+    ush  deflate_flags = 0; /* pkzip -es, -en or -ex equivalent */
+    method = DEFLATED;
+    level = 9;
+
+    bufs_init(in_file, in_len, out_file, out_cap);
+    
+    put_byte(((in_len / 16) >> 8) & 0xff);
+    put_byte(((in_len / 16) >> 0) & 0xff);
+    
+    bi_init(NO_FILE);
+    ct_init(&attr, &method);
+    lm_init(level, &deflate_flags);
+    
+    (void)_deflate();
+
+    flush_outbuf();
+    return bytes_out;
+}
+
 size_t bufs_init(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap){
     in_file_buffer = in_file;
     in_file_remaining = in_len;
