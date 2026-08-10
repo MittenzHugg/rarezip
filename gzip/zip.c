@@ -29,7 +29,7 @@ _Thread_local uch *in_file_buffer;
 _Thread_local size_t in_file_remaining;
 _Thread_local uch *out_file_buffer;
 _Thread_local size_t out_file_remaining;
-size_t bufs_init();
+size_t bufs_init(uint8_t *in_file, size_t in_len, uint8_t *out_file, size_t out_cap);
 
 /* ===========================================================================
  * Deflate in to out.
